@@ -23,7 +23,7 @@ for i = 1:length(metrics)
         set(gca, 'YScale', 'log');
     end
 
-    legend('Location', 'eastoutside');
+    legend('Location', 'best');
     
     grid on;
     hold off;
