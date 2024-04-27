@@ -1,31 +1,37 @@
-bike = readtable('BIKE-L5_benchmark_data.csv');
-hqc = readtable('HQC-256_benchmark_data.csv');
-classic_mceliece = readtable('Classic-McEliece-6688128f_benchmark_data.csv');
+files = {'BIKE-L5_benchmark_data.csv', 'HQC-256_benchmark_data.csv', 'Classic-McEliece-6688128f_benchmark_data.csv', 'Kyber1024_benchmark_data.csv'};
+algorithmNames = {'BIKE-L5', 'HQC-256', 'Classic-McEliece-6688128f', 'Kyber1024'};
+
+dataTables = cell(length(files), 1);
+for k = 1:length(files)
+    dataTables{k} = readtable(files{k});
+end
 
 metrics = {'KeygenTime_ms_', 'EncryptionTime_ms_', 'DecryptionTime_ms_'};
 metricNames = {'Key Generation Time', 'Encryption Time', 'Decryption Time'};
-algorithms = {'BIKE', 'HQC', 'Classic McEliece'};
-colors = [0 0.4470 0.7410; 0.8500 0.3250 0.0980; 0.9290 0.6940 0.1250];
+
+colors = lines(length(files));
 
 for i = 1:length(metrics)
     metric = metrics{i};
     figLine = figure;
-    plot(bike.Run, bike.(metric), '-r', 'DisplayName', 'BIKE'); hold on;
-    plot(hqc.Run, hqc.(metric), '-g', 'DisplayName', 'HQC');
-    plot(classic_mceliece.Run, classic_mceliece.(metric), '-b', 'DisplayName', 'Classic McEliece');
-    title([metricNames{i} ' Across Runs']);
-    xlabel('Run');
+    
+    for j = 1:length(dataTables)
+        plot(dataTables{j}.Run, dataTables{j}.(metric), 'DisplayName', algorithmNames{j}, 'Color', colors(j, :)); hold on;
+    end
+    
+    title([metricNames{i} ' Across Iterations']);
+    xlabel('Iteration');
     ylabel('Time (ms)');
-
+    
     if strcmp(metric, 'EncryptionTime_ms_')
         set(gca, 'YScale', 'linear');
     else
         set(gca, 'YScale', 'log');
     end
 
-    legend('Location', 'best');
-    
+    legend('Location', 'eastoutside');
     grid on;
     hold off;
+    
     saveas(figLine, sprintf('LinePlot_%s.png', strrep(metricNames{i}, ' ', '_')));
 end
